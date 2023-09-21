@@ -8,6 +8,7 @@ from recipes.models import (Ingredient, Recipe, RecipeIngredient, ShoppingCart,
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
+from core.exceptions import CreateShoppingCartError
 from core.serializers import BaseUserSerializer
 from users.models import User
 
@@ -74,7 +75,7 @@ class UserSerializer(BaseUserSerializer):
 
         return super().update(instance, validated_data)
 
-    def create(self, validated_data):    
+    def create(self, validated_data):
         user = User.objects.create_user(
             email=validated_data["email"],
             username=validated_data["username"],
