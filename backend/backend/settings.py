@@ -34,7 +34,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "backend:8000",
     "0.0.0.0:8000",
-    "localhost"
+    "localhost",
+    "foodgramajsen.ddns.net"
 ]
 
 AUTH_USER_MODEL = 'users.User'
