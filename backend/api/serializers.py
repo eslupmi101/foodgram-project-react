@@ -3,12 +3,12 @@ import logging
 
 from django.contrib.auth import password_validation
 from django.core.files.base import ContentFile
+from recipes.models import (Ingredient, Recipe, RecipeIngredient, ShoppingCart,
+                            Tag)
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
 from core.serializers import BaseUserSerializer
-from recipes.models import (Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from users.models import User
 
 
@@ -22,7 +22,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise ValidationError(
                 {'current_password': 'Текущий пароль введен неверно.'}
-        )
+            )
 
         return value
 
@@ -239,7 +239,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop("recipes_ingredients")
-        recipe  = super().update(instance, validated_data)
+        recipe = super().update(instance, validated_data)
 
         for ingredient in ingredients_data:
             RecipeIngredient.objects.create(
