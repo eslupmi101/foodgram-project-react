@@ -42,7 +42,7 @@ jobs:
         python manage.py test
   
   frontend_tests:
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up nodeJS
