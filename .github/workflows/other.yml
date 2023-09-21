@@ -46,8 +46,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Setup latest Alpine Linux
-      uses: jirutka/setup-alpine@v1
     - name: Set up nodeJS
       uses: actions/setup-node@v3
       with:

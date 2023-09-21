@@ -14,4 +14,6 @@ RUN npm run build
 
 RUN mkdir /frontend_static/
 
-CMD ["cp", "-r", "/app/build/.", "/frontend_static/."]
+RUN cp -r /app/build/. /frontend_static/.
+
+CMD ["npm", "start"]
