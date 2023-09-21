@@ -1,9 +1,9 @@
-name: Main deploy Foodgram workflow
+name: Master deploy Foodgram workflow
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   backend_tests:
