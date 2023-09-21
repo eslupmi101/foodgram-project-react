@@ -1,10 +1,10 @@
 import json
-import os
 import logging
-
-from django.core.management import BaseCommand
-from django.conf import settings
+import os
 from typing import Dict, List
+
+from django.conf import settings
+from django.core.management import BaseCommand
 
 from recipes.models import Ingredient
 

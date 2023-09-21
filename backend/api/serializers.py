@@ -1,4 +1,5 @@
 import base64
+import logging
 
 from django.contrib.auth import password_validation
 from django.core.files.base import ContentFile
@@ -6,12 +7,8 @@ from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
 from core.serializers import BaseUserSerializer
-from recipes.models import (Favorite,
-                            Ingredient,
-                            Recipe,
-                            RecipeIngredient,
-                            Tag,
-                            ShoppingCart)
+from recipes.models import (Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import User
 
 
@@ -85,22 +82,41 @@ class UserSerializer(BaseUserSerializer):
             last_name=validated_data["last_name"],
             password=validated_data["password"]
         )
+        try:
+            shopping_cart = ShoppingCart.objects.create(
+                owner=user
+            )
+            logging.debug(
+                f"User {user.pk} created. "
+                f"Shopping cart {shopping_cart.pk} for user created"
+            )
+        except CreateShoppingCartError as e:
+            logging.error(
+                f"User {user.pk} created. "
+                f"Shopping cart cannot be created {e}."
+            )
 
         return user
 
     def validate_username(self, username):
         if username == "me":
-            raise serializers.ValidationError("It is forbidden to use this name.")
+            raise serializers.ValidationError(
+                "It is forbidden to use this name."
+            )
 
         if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError("A user with this name already exists")
+            raise serializers.ValidationError(
+                "A user with this name already exists"
+            )
 
         return username
 
     def validate_email(self, email):
         email_exists = User.objects.filter(email=email).exists()
         if email_exists:
-            raise serializers.ValidationError("A user with this email already exists")
+            raise serializers.ValidationError(
+                "A user with this email already exists"
+            )
         return email
 
     def to_representation(self, instance):
