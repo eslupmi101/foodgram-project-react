@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.utils.translation import gettext as _
 
 from .models import Subscribe, User
 
@@ -11,14 +10,14 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ["is_staff"]
     fieldsets = [
         [None, {"fields": ["email", "password"]}],
-        [_["Personal Info"], {"fields": [
+        ["Personal Info", {"fields": [
             "username", "first_name", "last_name"
         ]}],
-        [_["Permissions"], {"fields": [
+        ["Permissions", {"fields": [
             "is_active", "is_staff", "is_superuser",
             "groups", "user_permissions"
         ]}],
-        [_["Important dates"], {"fields": ["last_login", "date_joined"]}],
+        ["Important dates", {"fields": ["last_login", "date_joined"]}],
     ]
     add_fieldsets = [
         [None, {
