@@ -59,17 +59,7 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE
     )
 
-
-class Favorite(models.Model):
-    recipe = models.ForeignKey(
-        "recipes.Recipe",
-        verbose_name="Рецепт",
-        related_name="favorites",
-        on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        "users.User",
-        verbose_name="Пользователь",
-        related_name="favorites",
-        on_delete=models.CASCADE
-    )
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        ordering = ["id"]
