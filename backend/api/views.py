@@ -7,7 +7,7 @@ from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.utils import get_xls_recipes_file
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, mixins
 
@@ -191,6 +191,7 @@ class IngredientViewSet(GenericViewSet,
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
     pagination_class = None
+    permission_classes = [AllowAny]
 
 
 class RecipeViewSet(ModelViewSet):
@@ -381,3 +382,4 @@ class TagViewSet(GenericViewSet,
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
     pagination_class = None
+    permission_classes = [AllowAny]
