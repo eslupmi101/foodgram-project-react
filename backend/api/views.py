@@ -7,14 +7,14 @@ from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.utils import get_xls_recipes_file
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, mixins
 
 from users.models import Subscribe
 from . import serializers
 from .filters import RecipeFilterSet
-from .permissions import RecipePermission
+from .permissions import RecipePermission, UserPermission
 
 User = get_user_model()
 
@@ -22,7 +22,7 @@ User = get_user_model()
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [UserPermission]
     filterset_fields = ['username']
     search_fields = ['username']
     http_method_names = ['get', 'post', 'patch', 'delete']

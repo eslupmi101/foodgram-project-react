@@ -38,6 +38,21 @@ class UserPermission(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
+        if (
+            user
+            and user.is_authenticated
+            and user.is_superuser
+        ):
+            return True
+
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
+            return True
+
+        user = request.user
+        if (
+            user
+            and user.is_authenticated
+            and user.is_superuser
+        ):
             return True
