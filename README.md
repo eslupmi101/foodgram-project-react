@@ -45,12 +45,12 @@ docker compose -f docker-compose.yml up
 
 Собираем статики для админки
 ```
-docker exec foodgram-project-react-backend-1 /app/collectstatic
+docker exec foodgram-backend-1 /app/collectstatic
 ```
 
 Мигрируем данные в бд
 ```
-docker exec foodgram-project-react-backend-1 python /app/manage.py migrate
+docker exec foodgram-backend-1 python /app/manage.py migrate
 ```
 
 Заходим на сайт по порту
