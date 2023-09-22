@@ -222,7 +222,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             "name", "text", "cooking_time",
             "is_favorited", "is_in_shopping_cart",
         ]
-        read_only_fields = ["author"]
+        read_only_fields = ["author", "is_favorited", "is_in_shopping_cart"]
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop("recipes_ingredients")
