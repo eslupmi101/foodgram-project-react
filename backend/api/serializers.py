@@ -137,6 +137,11 @@ class Base64ImageField(serializers.ImageField):
 
         return super().to_internal_value(data)
 
+    def to_representation(self, obj):
+        request = self.context.get('request')
+        photo_url = obj.url
+        return request.build_absolute_uri(photo_url)
+
 
 class IngredientSerializer(serializers.ModelSerializer):
 
@@ -194,9 +199,9 @@ class RecipeGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_image(self, obj):
-        if obj.image:
-            return obj.image.url
-        return None
+        request = self.context.get('request')
+        photo_url = obj.url
+        return request.build_absolute_uri(photo_url)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
