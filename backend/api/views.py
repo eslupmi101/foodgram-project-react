@@ -13,7 +13,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, mixins
 
 from users.models import Subscribe
 from . import serializers
-from .filters import RecipeFilterSet
+from .filters import IngredientFilterSet, RecipeFilterSet
 from .permissions import RecipePermission, UserPermission
 
 User = get_user_model()
@@ -23,9 +23,9 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = [UserPermission]
-    filterset_fields = ['username']
-    search_fields = ['username']
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    filterset_fields = ["username"]
+    search_fields = ["username"]
+    http_method_names = ["get", "post", "patch", "delete"]
 
     def get_object(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -48,11 +48,11 @@ class UserViewSet(ModelViewSet):
         Редактирования и получение
         данных собственного профиля
         """
-        if request.method == 'PATCH':
+        if request.method == "PATCH":
             serializer = serializers.UserSerializer(
                 request.user,
                 data=request.data,
-                context={'request': request},
+                context={"request": request},
                 partial=True
             )
             serializer.is_valid(raise_exception=True)
@@ -192,6 +192,7 @@ class IngredientViewSet(GenericViewSet,
     serializer_class = serializers.IngredientSerializer
     pagination_class = None
     permission_classes = [AllowAny]
+    filterset_class = IngredientFilterSet
 
 
 class RecipeViewSet(ModelViewSet):
@@ -264,7 +265,7 @@ class RecipeViewSet(ModelViewSet):
         response["Content-Disposition"] = (
             'attachment; filename="shopping-list.xls"'
         )
-        response['Content-Type'] = 'application/ms-excel; charset=utf-8'
+        response["Content-Type"] = "application/ms-excel; charset=utf-8"
 
         workbook = get_xls_recipes_file(recipes)
         workbook.save(response)
