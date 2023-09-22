@@ -112,45 +112,43 @@ class UserViewSet(ModelViewSet):
             subscriber=request.user
         )
 
-        match request.method:
-            case "POST":
-                if subscribe.exists():
-                    return Response(
-                        data={
-                            "error":
-                            "You have already subscribed to this author."
-                        },
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                Subscribe.objects.create(
-                    author=author,
-                    subscriber=request.user
-                )
-
-                serializer = serializers.UserRecipeSerializer(
-                    author,
-                    context={"request": request}
-                )
+        if request.method == "POST":
+            if subscribe.exists():
                 return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
+                    data={
+                        "error":
+                        "You have already subscribed to this author."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
                 )
+            Subscribe.objects.create(
+                author=author,
+                subscriber=request.user
+            )
 
-            case "DELETE":
-                if request.method == "DELETE":
-                    if not subscribe.exists():
-                        return Response(
-                            data={
-                                "error":
-                                "You are not subscribed to this author."
-                            },
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
-                    subscribe.delete()
+            serializer = serializers.UserRecipeSerializer(
+                author,
+                context={"request": request}
+            )
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_201_CREATED
+            )
 
-                    return Response(
-                        status=status.HTTP_204_NO_CONTENT
-                    )
+        # DELETE method
+        if not subscribe.exists():
+            return Response(
+                data={
+                    "error":
+                    "You are not subscribed to this author."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        subscribe.delete()
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=True,
@@ -263,34 +261,34 @@ class RecipeViewSet(ModelViewSet):
             ShoppingCart,
             owner=request.user
         )
-        match request.method:
-            case "POST":
-                if recipe in shopping_cart.recipes.all():
-                    return Response(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={
-                            "error":
-                            "The recipe is already in your shopping cart."
-                        }
-                    )
-                shopping_cart.recipes.add(recipe)
-                serializer = serializers.RecipeGETSerializer(recipe)
+        if request.method == "POST":
+            if recipe in shopping_cart.recipes.all():
                 return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={
+                        "error":
+                        "The recipe is already in your shopping cart."
+                    }
                 )
-            case "DELETE":
-                if recipe not in shopping_cart.recipes.all():
-                    return Response(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={
-                            "error": "No recipe in shopping cart."
-                        }
-                    )
-                shopping_cart.recipes.remove(recipe)
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
+            shopping_cart.recipes.add(recipe)
+            serializer = serializers.RecipeGETSerializer(recipe)
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
+        # DELETE method
+        if recipe not in shopping_cart.recipes.all():
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={
+                    "error": "No recipe in shopping cart."
+                }
+            )
+        shopping_cart.recipes.remove(recipe)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=True,
@@ -310,40 +308,40 @@ class RecipeViewSet(ModelViewSet):
             recipe=recipe,
             user=user
         )
-        match request.method:
-            case "POST":
-                if (
-                    favorite_queryset.exists()
-                ):
-                    return Response(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={
-                            "error": "Recipe is already in favorites."
-                        }
-                    )
-                Favorite.objects.create(
-                    recipe=recipe,
-                    user=user
-                )
-                serializer = serializers.FavoriteRecipeGETSerializer(recipe)
+        if request.method == "POST":
+            if (
+                favorite_queryset.exists()
+            ):
                 return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={
+                        "error": "Recipe is already in favorites."
+                    }
                 )
-            case "DELETE":
-                if (
-                    not favorite_queryset.exists()
-                ):
-                    return Response(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={
-                            "error": "No recipe in favorites."
-                        }
-                    )
-                favorite_queryset.first().delete()
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
+            Favorite.objects.create(
+                recipe=recipe,
+                user=user
+            )
+            serializer = serializers.FavoriteRecipeGETSerializer(recipe)
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
+        # DELETE method
+        if (
+            not favorite_queryset.exists()
+        ):
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={
+                    "error": "No recipe in favorites."
+                }
+            )
+        favorite_queryset.first().delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
 
 class TagViewSet(GenericViewSet,

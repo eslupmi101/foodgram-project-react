@@ -137,8 +137,8 @@ jobs:
             sudo docker compose -f docker-compose.production.yml pull
             sudo docker compose -f docker-compose.production.yml down
             sudo docker compose -f docker-compose.production.yml up -d
-            sudo docker exec foodgram-backend-1 python /app/manage.py migrate
-            sudo docker exec foodgram-backend-1 /app/collectstatic
+            sudo docker exec foodgram-project-react-backend-1 python /app/manage.py migrate
+            sudo docker exec foodgram-project-react-backend-1 /app/collectstatic
 
   send_message:
     runs-on: ubuntu-latest
