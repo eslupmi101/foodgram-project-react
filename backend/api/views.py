@@ -383,3 +383,7 @@ class TagViewSet(GenericViewSet,
     serializer_class = serializers.TagSerializer
     pagination_class = None
     permission_classes = [AllowAny]
+    filterset_fields = ["name"]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
+
