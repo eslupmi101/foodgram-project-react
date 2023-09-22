@@ -7,11 +7,11 @@ def get_xls_recipes_file(recipes) -> xlwt.Workbook:
 
     Принимает queryset Recipe.
     """
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Recipes')
+    wb = xlwt.Workbook(encoding="utf-8")
+    ws = wb.add_sheet("Recipes")
 
     row_num = 0
-    columns = ['Название', 'Автор', 'Описание', 'Время приготовления']
+    columns = ["Название", "Автор", "Описание", "Время приготовления"]
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
