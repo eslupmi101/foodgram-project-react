@@ -197,7 +197,6 @@ class IngredientViewSet(GenericViewSet,
 
 class RecipeViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    http_method_names = ["get", "delete", "put", "post"]
     permission_classes = [RecipePermission]
     serializer_class = serializers.RecipeSerializer
     filterset_class = RecipeFilterSet
