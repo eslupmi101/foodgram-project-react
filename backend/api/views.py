@@ -74,6 +74,11 @@ class UserViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def get_subscriptions(self, request):
+        """
+        Создает endpoint api/users/subscriptions/.
+
+        Получение листа подписок.
+        """
         authors = get_list_or_404(
             User,
             subscribe_subscribers__author=request.user,
@@ -96,6 +101,11 @@ class UserViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, pk=None):
+        """
+        Создает endpoint api/users/{id}/subscribe/.
+
+        Управление подписками.
+        """
         author = get_object_or_404(
             User,
             pk=pk
@@ -158,6 +168,11 @@ class UserViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def set_password(self, request):
+        """
+        Создает endpoint api/users/set_password/.
+
+        Смена пароля.
+        """
         serializer = serializers.ChangePasswordSerializer(
             data=request.data,
             context={"request": request}
@@ -227,6 +242,12 @@ class RecipeViewSet(ModelViewSet):
         url_name="Download shopping cart"
     )
     def download_shopping_cart(self, request):
+        """
+        Создает endpoint api/recipes/download_shopping_cart/.
+
+        Скачивание файла xls с информацией рецептов
+        из корзины покупок.
+        """
         shopping_cart = get_object_or_404(
             ShoppingCart,
             owner=request.user
@@ -256,6 +277,11 @@ class RecipeViewSet(ModelViewSet):
         url_name="Shopping cart"
     )
     def recipe_shopping_cart(self, request, pk=None):
+        """
+        Создает endpoint api/recipes/{id}/recipe_shopping_cart/.
+
+        Управление рецептами из корзины покупок.
+        """
         recipe = get_object_or_404(Recipe, pk=pk)
         shopping_cart = get_object_or_404(
             ShoppingCart,
@@ -298,6 +324,11 @@ class RecipeViewSet(ModelViewSet):
         url_name="Favorite"
     )
     def recipe_favorite(self, request, pk=None):
+        """
+        Создает endpoint api/recipes/{id}/favorite/.
+
+        Управление рецептами из листа избранных.
+        """
         recipe = get_object_or_404(
             Recipe,
             pk=pk
