@@ -1,6 +1,8 @@
 # Дипломный проект Foodgram
 [![Master deploy Foodgram workflow](https://github.com/eslupmi101/foodgram-project-react/actions/workflows/master.yml/badge.svg?branch=master)](https://github.com/eslupmi101/foodgram-project-react/actions/workflows/master.yml)
 
+Сайт доступен по ссылке - https://foodgramajsen.ddns.net/
+
 ### **Описание проекта**
 Foodgram - это уникальная онлайн-платформа, предназначенная для всех, кто разделяет страсть к кулинарии и ищет бесконечное вдохновение в мире готовки. Наш веб-сайт предоставляет широкие возможности для создания, сохранения и публикации собственных рецептов, а также для вдохновения и обмена идеями с другими кулинарами со всего мира.
 
