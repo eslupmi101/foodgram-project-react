@@ -138,7 +138,7 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
     def to_representation(self, obj):
-        return f"https://foodgramajsen.ddns.net/{obj.url}"
+        return f"https://foodgramajsen.ddns.net{obj.url}"
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -197,7 +197,7 @@ class RecipeGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_image(self, obj):
-        return f"https://foodgramajsen.ddns.net/{obj.url}"
+        return f"https://foodgramajsen.ddns.net{obj.url}"
 
 
 class RecipeSerializer(serializers.ModelSerializer):
