@@ -27,13 +27,6 @@ class UserViewSet(ModelViewSet):
     search_fields = ["username"]
     http_method_names = ["get", "post", "patch", "delete"]
 
-    def get_object(self):
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        username = self.kwargs[lookup_url_kwarg]
-        obj = get_object_or_404(self.get_queryset(), username=username)
-        self.check_object_permissions(self.request, obj)
-        return obj
-
     @action(
         detail=False,
         methods=["GET", "PATCH"],
