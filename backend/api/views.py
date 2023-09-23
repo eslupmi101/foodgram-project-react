@@ -74,7 +74,7 @@ class UserViewSet(ModelViewSet):
         """
         authors = get_list_or_404(
             User,
-            subscribe_subscribers__author=request.user,
+            subscribe_subscribers_subscriber=request.user,
         )
         serializer = serializers.UserRecipeSerializer(
             authors,
