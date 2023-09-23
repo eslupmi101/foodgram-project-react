@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from users.models import Subscribe
-
 
 class IsSubscribedUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
