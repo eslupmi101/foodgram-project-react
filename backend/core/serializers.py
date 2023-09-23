@@ -17,5 +17,5 @@ class IsSubscribedUserSerializer(serializers.ModelSerializer):
             return False
 
         return bool(
-            obj.subscribe_subscribers.filter(subscriber=user).exists()
+            obj.subscribe_authors.filter(subscriber=user).exists()
         )
