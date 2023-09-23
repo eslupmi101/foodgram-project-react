@@ -249,11 +249,9 @@ class RecipeViewSet(ModelViewSet):
         Скачивание файла xls с информацией рецептов
         из корзины покупок.
         """
-        shopping_cart = get_object_or_404(
-            ShoppingCart,
-            owner=request.user
+        recipes = Recipe.objects.filter(
+            shoppingcart__user=self.request.user
         )
-        recipes = shopping_cart.recipes
         if not recipes.exists():
             return Response(
                 data={"error": "Shopping cart is blank."},
@@ -284,12 +282,14 @@ class RecipeViewSet(ModelViewSet):
         Управление рецептами из корзины покупок.
         """
         recipe = get_object_or_404(Recipe, pk=pk)
-        shopping_cart = get_object_or_404(
-            ShoppingCart,
-            owner=request.user
+        user = request.user
+        recipe_shopping_cart = ShoppingCart.objects.filter(
+            recipe=recipe,
+            user=user
         )
+
         if request.method == "POST":
-            if recipe in shopping_cart.recipes.all():
+            if recipe_shopping_cart.exists():
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST,
                     data={
@@ -297,7 +297,10 @@ class RecipeViewSet(ModelViewSet):
                         "The recipe is already in your shopping cart."
                     }
                 )
-            shopping_cart.recipes.add(recipe)
+            ShoppingCart.objects.create(
+                recipe=recipe,
+                user=user
+            )
             serializer = serializers.RecipeGETSerializer(recipe)
             return Response(
                 data=serializer.data,
@@ -305,14 +308,14 @@ class RecipeViewSet(ModelViewSet):
             )
 
         # DELETE method
-        if recipe not in shopping_cart.recipes.all():
+        if not recipe_shopping_cart.exists():
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
                 data={
                     "error": "No recipe in shopping cart."
                 }
             )
-        shopping_cart.recipes.remove(recipe)
+        recipe_shopping_cart.delete()
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
@@ -370,7 +373,7 @@ class RecipeViewSet(ModelViewSet):
                     "error": "No recipe in favorites."
                 }
             )
-        favorite_queryset.first().delete()
+        favorite_queryset.delete()
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )

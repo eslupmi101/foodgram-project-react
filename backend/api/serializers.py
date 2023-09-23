@@ -1,14 +1,12 @@
 import base64
-import logging
 
+from django.conf import settings
 from django.contrib.auth import password_validation
 from django.core.files.base import ContentFile
-from recipes.models import (Ingredient, Recipe, RecipeIngredient, ShoppingCart,
-                            Tag)
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
-from core.exceptions import CreateShoppingCartError
 from core.serializers import BaseUserSerializer
 from users.models import User
 
@@ -83,19 +81,6 @@ class UserSerializer(BaseUserSerializer):
             last_name=validated_data["last_name"],
             password=validated_data["password"]
         )
-        try:
-            shopping_cart = ShoppingCart.objects.create(
-                owner=user
-            )
-            logging.debug(
-                f"User {user.pk} created. "
-                f"Shopping cart {shopping_cart.pk} for user created"
-            )
-        except CreateShoppingCartError as e:
-            logging.error(
-                f"User {user.pk} created. "
-                f"Shopping cart cannot be created {e}."
-            )
 
         return user
 
@@ -138,11 +123,10 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
     def to_representation(self, obj):
-        return f"https://foodgramajsen.ddns.net{obj.url}"
+        return f"{settings.DOMAIN}{obj.url}"
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ingredient
         fields = ["id", "name", "measurement_unit"]
@@ -197,7 +181,7 @@ class RecipeGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_image(self, obj):
-        return f"https://foodgramajsen.ddns.net{obj.url}"
+        return f"{settings.DOMAIN}{obj.url}"
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -251,14 +235,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
 
         return recipe
-
-
-class ShoppingCartSerializer(serializers.ModelSerializer):
-    recipes = RecipeSerializer(many=True)
-
-    class Meta:
-        model = ShoppingCart
-        fields = ["recipes", "owner"]
 
 
 class UserRecipeSerializer(BaseUserSerializer):

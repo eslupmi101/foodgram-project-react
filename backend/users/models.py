@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from .validators import UsernameValidator
@@ -44,6 +45,9 @@ class User(AbstractUser):
         },
     )
 
+    def __str__(self) -> str:
+        return self.username
+
 
 class Subscribe(models.Model):
     author = models.ForeignKey(
@@ -62,4 +66,15 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        ordering = ["id"]
+        unique_together = [["author", "subscriber"]]
+
+    def clean(self, *args, **kwargs):
+        if self.author == self.subscriber:
+            raise ValidationError("Вы не можете подписываться на себя.")
+        return super().clean(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return (
+            f"Подписка {str(self.subscriber)}"
+            f" на {str(self.author)}"
+        )
