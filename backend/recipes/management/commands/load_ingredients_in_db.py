@@ -26,11 +26,14 @@ def read_json_file(file_name: str) -> List[Dict]:
 
 def load_ingredients(file_name: str) -> None:
     ingredients = read_json_file(file_name)
+    ingredient_objs: list[Ingredient] = []
+
     for ingredient in ingredients:
-        Ingredient.objects.create(
+        ingredient_objs.append(Ingredient(
             name=ingredient.get("name"),
             measurement_unit=ingredient.get("measurement_unit")
-        )
+        ))
+    Ingredient.objects.bulk_create(ingredient_objs)
     logger.info("Ingredients loaded into database.")
 
 

@@ -1,26 +1,8 @@
 from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-
-class Favorite(models.Model):
-    recipe = models.ForeignKey(
-        "recipes.Recipe",
-        verbose_name="Рецепт",
-        related_name="favorites",
-        on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        "users.User",
-        verbose_name="Пользователь",
-        related_name="favorites",
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name = "Избранное"
-        verbose_name_plural = "Избранные"
-        ordering = ["id"]
+from core.models import BaseRecipeUserModel
 
 
 class Ingredient(models.Model):
@@ -36,7 +18,9 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
-        ordering = ["id"]
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Recipe(models.Model):
@@ -62,8 +46,20 @@ class Recipe(models.Model):
         verbose_name="Список id тегов",
         through="RecipeTag"
     )
-    cooking_time = models.PositiveIntegerField(
-        verbose_name="Время приготовления (в минутах)"
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name="Время приготовления (в минутах)",
+        validators=[
+            MinValueValidator(
+                1,
+                message="Минимальное время приготовления - 1 минута"
+            ),
+            MaxValueValidator(
+                600,
+                message=(
+                    "Максимальное время приготовления"
+                    " - 10 часов (600 минут)")
+            ),
+        ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -76,46 +72,59 @@ class Recipe(models.Model):
         verbose_name_plural = "Рецепты"
         ordering = ["pub_date"]
 
+    def __str__(self) -> str:
+        return self.name
 
-class ShoppingCart(models.Model):
-    recipes = models.ManyToManyField(
-        "recipes.Recipe",
-        through="ShoppingCartRecipe",
-        related_name="shopping_carts",
-        verbose_name="Рецепты"
-    )
-    owner = models.OneToOneField(
-        "users.User",
-        verbose_name="Владелец корзины покупок",
-        related_name="shopping_carts",
-        on_delete=models.CASCADE
-    )
 
+class ShoppingCart(BaseRecipeUserModel):
     class Meta:
-        verbose_name = "Корзина покупок"
-        verbose_name = "Корзины покупок"
-        ordering = ["id"]
+        verbose_name = "Рецепт в корзине покупок"
+        verbose_name = "Рецепты в корзине покупок"
+        unique_together = [["recipe", "user"]]
+
+    def __str__(self) -> str:
+        return (
+            f"Рецепт {str(self.recipe)} в корзине покупок"
+            f"пользователя {str(self.user)}"
+        )
+
+
+class Favorite(BaseRecipeUserModel):
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные"
+        unique_together = [["recipe", "user"]]
+
+    def __str__(self) -> str:
+        return (
+            f"Избранный рецепт {str(self.recipe)}"
+            f" пользователя {str(self.user)}"
+        )
 
 
 class Tag(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name="Название"
+        verbose_name="Название",
+        unique=True
     )
     color = ColorField(
         verbose_name="Цветовой код",
-        default='#FF0000'
+        default='#FF0000',
+        unique=True
     )
     slug = models.CharField(
         max_length=200,
-        verbose_name="Слаг"
+        verbose_name="Слаг",
+        unique=True
     )
 
     class Meta:
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
-        ordering = ["id"]
 
+    def __str__(self) -> str:
+        return self.slug
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
@@ -130,17 +139,31 @@ class RecipeIngredient(models.Model):
         related_name="recipes_ingredients",
         on_delete=models.CASCADE
     )
-    amount = models.PositiveIntegerField(
-        verbose_name="Количество ингридиента",
+    amount = models.PositiveSmallIntegerField(
+        verbose_name="Количество ингредиента",
         validators=[
-            MinValueValidator(1)
+            MinValueValidator(
+                1,
+                message="Минимальное количество ингредиента - 1"
+            ),
+            MaxValueValidator(
+                10000,
+                message=(
+                    "Максимальное количество ингредиента"
+                    " - 10 000")
+            ),
         ]
     )
 
     class Meta:
         verbose_name = "Соответствие рецепта и ингредиентов"
         verbose_name = "Соответствия рецепта и ингредиентов"
-        ordering = ["id"]
+
+    def __str__(self) -> str:
+        return (
+            f"Соответствие рецепта {str(self.recipe)}"
+            f"и ингредиента {str(self.ingredient)}"
+        )
 
 
 class RecipeTag(models.Model):
@@ -160,24 +183,9 @@ class RecipeTag(models.Model):
     class Meta:
         verbose_name = "Соответствие рецепта и тегов"
         verbose_name = "Соответствия рецепта и тегов"
-        ordering = ["id"]
 
-
-class ShoppingCartRecipe(models.Model):
-    recipe = models.ForeignKey(
-        "recipes.Recipe",
-        verbose_name="Рецепт",
-        related_name="shopping_carts_recipes",
-        on_delete=models.CASCADE
-    )
-    shopping_cart = models.ForeignKey(
-        "recipes.ShoppingCart",
-        verbose_name="Корзина покупок",
-        related_name="shopping_carts_recipes",
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name = "Соответствие корзины покупок и рецептов"
-        verbose_name = "Соответствия корзины покупок и рецептов"
-        ordering = ["id"]
+    def __str__(self) -> str:
+        return (
+            f"Соответствие рецепта {str(self.recipe)}"
+            f" и тега {str(self.tag)}"
+        )
