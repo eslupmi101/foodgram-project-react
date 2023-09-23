@@ -181,7 +181,7 @@ class RecipeGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_image(self, obj):
-        return f"{settings.DOMAIN}{obj.url}"
+        return f"{settings.DOMAIN}{obj.image.url}"
 
 
 class RecipeSerializer(serializers.ModelSerializer):
