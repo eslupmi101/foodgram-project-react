@@ -161,8 +161,8 @@ class UserViewSet(ModelViewSet):
         )
 
     @action(
-        detail=True,
-        methods=["GET"],
+        detail=False,
+        methods=["POST"],
         url_path="set_password",
         url_name="Set password",
         permission_classes=[IsAuthenticated]

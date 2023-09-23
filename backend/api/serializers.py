@@ -15,30 +15,28 @@ class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
-    def validate_current_password(self, value):
+    def validate_current_password(self, current_password):
         user = self.context['request'].user
 
-        if not user.check_password(value):
+        if not user.check_password(current_password):
             raise ValidationError(
                 {'current_password': 'Текущий пароль введен неверно.'}
             )
 
-        return value
+        return current_password
 
-    def validate_new_password(self, value):
+    def validate_new_password(self, new_password):
         user = self.context['request'].user
 
         try:
-            password_validation.validate_password(value, user=user)
+            password_validation.validate_password(new_password, user=user)
         except ValidationError as e:
             raise ValidationError({'new_password': e.messages})
 
-        return value
+        return new_password
 
-    def update(self, instance, validated_data):
-        user = instance
-        new_password = validated_data['new_password']
-        user.set_password(new_password)
+    def update(self, user, validated_data):
+        user.set_password(validated_data['new_password'])
         user.save()
 
         return user
