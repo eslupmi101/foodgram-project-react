@@ -126,6 +126,7 @@ class Tag(models.Model):
     def __str__(self) -> str:
         return self.slug
 
+
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         "recipes.Recipe",
