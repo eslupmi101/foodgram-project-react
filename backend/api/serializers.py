@@ -7,7 +7,7 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
-from core.serializers import BaseUserSerializer
+from core.serializers import IsSubscribedUserSerializer
 from users.models import User
 
 
@@ -51,7 +51,7 @@ class FavoriteRecipeGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class UserSerializer(BaseUserSerializer):
+class UserSerializer(IsSubscribedUserSerializer):
     class Meta:
         model = User
         fields = [
@@ -237,7 +237,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
 
-class UserRecipeSerializer(BaseUserSerializer):
+class UserRecipeSerializer(IsSubscribedUserSerializer):
     recipes = RecipeSerializer(
         many=True
     )

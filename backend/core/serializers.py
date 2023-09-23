@@ -1,12 +1,9 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from users.models import Subscribe
 
-User = get_user_model()
 
-
-class BaseUserSerializer(serializers.ModelSerializer):
+class IsSubscribedUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
