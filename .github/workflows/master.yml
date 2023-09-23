@@ -116,7 +116,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Copy docker-compose.yml via ssh
+      - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -139,7 +139,6 @@ jobs:
             sudo docker compose -f docker-compose.production.yml up -d
             sudo docker exec foodgram-backend-1 python /app/manage.py migrate
             sudo docker exec foodgram-backend-1 /app/collectstatic
-            sudo docker system prune -af
 
   send_message:
     runs-on: ubuntu-latest
