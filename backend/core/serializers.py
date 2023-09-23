@@ -9,18 +9,15 @@ class IsSubscribedUserSerializer(serializers.ModelSerializer):
     class Meta:
         abstract = True
 
-    def get_is_subscribed(self, author):
+    def get_is_subscribed(self, obj):
         user = self.context.get("request").user
 
         if not user.is_authenticated:
             return False
 
-        if user == author:
+        if user == obj:
             return False
 
         return bool(
-            Subscribe.objects.filter(
-                author=author,
-                subscriber=user
-            ).exists()
+            user.subscribe_subscribers.filter(author=obj).exists()
         )
