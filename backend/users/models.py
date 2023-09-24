@@ -69,13 +69,11 @@ class Subscribe(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["author_id", "subscriber_id"],
-                name="unique_subscriber",
-                violation_error_message="Нельзя подписаться второй раз."
+                name="unique_subscriber"
             ),
             models.CheckConstraint(
                 check=~Q(subscribe_authors=F("subscribe_subscribers")),
-                name="cannot_subscribe_yourself",
-                violation_error_message="Нельзя подписаться на себя."
+                name="cannot_subscribe_yourself"
             )
         ]
 
