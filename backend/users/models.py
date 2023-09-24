@@ -2,7 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import F, Q
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 
 from .validators import UsernameValidator
 
@@ -76,6 +78,12 @@ class Subscribe(models.Model):
                 name="cannot_subscribe_yourself"
             )
         ]
+
+    def clean(self, *args, **kwargs):
+        if self.author == self.subscriber:
+            raise ValidationError("Вы не можете подписаться на себя.")
+
+        return super().clean(*args, **kwargs)
 
     def __str__(self) -> str:
         return (
