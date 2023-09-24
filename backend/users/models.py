@@ -75,7 +75,7 @@ class Subscribe(models.Model):
                 )
             ),
             models.CheckConstraint(
-                check=~Q(author=F("subscriber")),
+                check=~Q(subscribe_authors=F("subscribe_subscribers")),
                 name="cannot_subscribe_yourself",
                 violation_error_message=(
                     "Нельзя подписаться на себя."
