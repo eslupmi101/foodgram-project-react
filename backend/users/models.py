@@ -68,7 +68,7 @@ class Subscribe(models.Model):
         verbose_name_plural = "Подписки"
         constraints = [
             models.UniqueConstraint(
-                fields=["author", "subscriber"],
+                fields=["author_id", "subscriber_id"],
                 name="unique_subscriber"
             ),
             models.CheckConstraint(
