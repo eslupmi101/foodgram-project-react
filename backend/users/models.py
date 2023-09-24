@@ -72,7 +72,7 @@ class Subscribe(models.Model):
                 name="unique_subscriber"
             ),
             models.CheckConstraint(
-                check=~Q(subscribe_authors=F("subscribe_subscribers")),
+                check=~Q(author=F("subscriber")),
                 name="cannot_subscribe_yourself"
             )
         ]
