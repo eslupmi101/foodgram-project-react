@@ -8,7 +8,8 @@ from core.models import BaseRecipeUserModel
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name="Название"
+        verbose_name="Название",
+        unique=True
     )
     measurement_unit = models.CharField(
         max_length=200,
