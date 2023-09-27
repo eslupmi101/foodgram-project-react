@@ -31,8 +31,7 @@ class RecipeTagInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = [
-        "id", "name", "author", "cooking_time",
-        "recipes_ingredients", "favorite_count"
+        "id", "name", "author", "cooking_time", "favorite_count"
     ]
     list_filter = ["name", "author", "tags"]
     search_fields = ["name", "author__username", "cooking_time"]
