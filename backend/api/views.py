@@ -54,12 +54,11 @@ class UserViewSet(DjoserUserViewSet):
 
         Получение листа подписок.
         """
-        authors = get_list_or_404(
-            User,
+        queryset = User.objects.filter(
             subscribe_authors__user=request.user,
         )
         serializer = serializers.UserRecipeGETSerializer(
-            authors,
+            data=queryset,
             context={"request": request},
             many=True
         )
