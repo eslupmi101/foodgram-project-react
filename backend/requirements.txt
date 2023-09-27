@@ -9,6 +9,7 @@ cryptography==41.0.3
 defusedxml==0.7.1
 Django==3.2.3
 django-colorfield==0.10.1
+django-extra-fields==3.0.2
 django-filter==23.3
 django-templated-mail==1.1.1
 djangorestframework==3.12.4
@@ -43,6 +44,7 @@ social-auth-app-django==4.0.0
 social-auth-core==4.4.2
 sqlparse==0.4.4
 toml==0.10.2
+typing_extensions==4.8.0
 uritemplate==4.1.1
 urllib3==2.0.4
 webcolors==1.11.1
