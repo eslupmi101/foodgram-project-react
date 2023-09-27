@@ -310,7 +310,7 @@ class ShopingCartSerializer(serializers.ModelSerializer):
         recipe = attrs["recipe"]
 
         if (
-            Favorite.objects.filter(
+            ShoppingCart.objects.filter(
                 recipe=recipe,
                 user=user
             ).exists()
