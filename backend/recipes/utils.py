@@ -65,10 +65,10 @@ def get_xls_recipes_file(recipes: list[Recipe]) -> xlwt.Workbook:
         add_recipe_titles(ws, row_num)
         row_num += 1
 
-        add_recipe_row(ws, row_num, recipe)
+        add_recipe_row(ws, row_num)
         row_num += 1
 
-        add_ingredients_titles(ws, row_num, recipe)
+        add_ingredients_titles(ws, row_num)
         row_num += 1
 
         number_ingredient = 0
