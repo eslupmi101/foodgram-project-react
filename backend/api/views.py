@@ -54,7 +54,7 @@ class UserViewSet(DjoserUserViewSet):
 
         Получение листа подписок.
         """
-        queryset = User.objects.filter(
+        queryset = self.get_queryset().filter(
             subscribe_authors__user=request.user,
         )
 
@@ -83,10 +83,7 @@ class UserViewSet(DjoserUserViewSet):
 
         Управление подписками.
         """
-        author = get_object_or_404(
-            User,
-            id=id
-        )
+        author = self.get_object()
         serializer = serializers.SubscribeSerializer(
             data={
                 "author": author,
@@ -103,10 +100,7 @@ class UserViewSet(DjoserUserViewSet):
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id=None):
-        author = get_object_or_404(
-            User,
-            id=id
-        )
+        author = self.get_object()
         subscribe = get_object_or_404(
             Subscribe,
             user=request.user,
@@ -210,7 +204,7 @@ class RecipeViewSet(ModelViewSet):
 
         Управление рецептами из корзины покупок.
         """
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = self.get_object()
         serializer = serializers.ShopingCartSerializer(
             data={
                 "recipe": recipe,
@@ -227,7 +221,7 @@ class RecipeViewSet(ModelViewSet):
 
     @recipe_shopping_cart.mapping.delete
     def delete_recipe_shopping_cart(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = self.get_object()
         shopping_cart = get_object_or_404(
             ShoppingCart,
             recipe=recipe,
@@ -251,10 +245,7 @@ class RecipeViewSet(ModelViewSet):
 
         Управление рецептами из листа избранных.
         """
-        recipe = get_object_or_404(
-            Recipe,
-            pk=pk
-        )
+        recipe = self.get_object()
         serializer = serializers.FavoriteRecipSerializer(
             data={
                 "recipe": recipe,
@@ -271,7 +262,7 @@ class RecipeViewSet(ModelViewSet):
 
     @recipe_favorite.mapping.delete
     def delete_recipe_favorite(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = self.get_object()
         favorite = get_object_or_404(
             Favorite,
             recipe=recipe,
