@@ -216,7 +216,8 @@ class RecipeViewSet(ModelViewSet):
             },
             context={"request": request}
         )
-        serializer.create()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(
             data=serializer.data["recipe"],
             status=status.HTTP_201_CREATED
@@ -260,7 +261,7 @@ class RecipeViewSet(ModelViewSet):
             context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.create()
+        serializer.save()
         return Response(
             data=serializer.data["recipe"],
             status=status.HTTP_201_CREATED
