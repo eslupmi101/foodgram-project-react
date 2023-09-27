@@ -57,15 +57,18 @@ class UserViewSet(DjoserUserViewSet):
         queryset = User.objects.filter(
             subscribe_authors__user=request.user,
         )
-        serializer = serializers.UserRecipeGETSerializer(
-            queryset,
-            context={"request": request},
-            many=True
-        )
-        return Response(
-            data=serializer.data,
-            status=status.HTTP_200_OK
-        )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = serializers.UserRecipeGETSerializer(
+                page,
+                many=True,
+                context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
