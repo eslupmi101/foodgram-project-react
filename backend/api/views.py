@@ -202,13 +202,13 @@ class RecipeViewSet(ModelViewSet):
         url_path="shopping_cart",
         url_name="Shopping cart"
     )
-    def recipe_shopping_cart(self, request, id=None):
+    def recipe_shopping_cart(self, request, pk=None):
         """
-        Создает endpoint api/recipes/{id}/recipe_shopping_cart/.
+        Создает endpoint api/recipes/{pk}/recipe_shopping_cart/.
 
         Управление рецептами из корзины покупок.
         """
-        recipe = get_object_or_404(Recipe, id=id)
+        recipe = get_object_or_404(Recipe, pk=pk)
         serializer = serializers.ShopingCartSerializer(
             data={
                 "recipe": recipe,
@@ -223,8 +223,8 @@ class RecipeViewSet(ModelViewSet):
         )
 
     @recipe_shopping_cart.mapping.delete
-    def delete_recipe_shopping_cart(self, request, id=None):
-        recipe = get_object_or_404(Recipe, id=id)
+    def delete_recipe_shopping_cart(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, pk=pk)
         shopping_cart = get_object_or_404(
             ShoppingCart,
             recipe=recipe,
@@ -242,15 +242,15 @@ class RecipeViewSet(ModelViewSet):
         url_path="favorite",
         url_name="Favorite"
     )
-    def recipe_favorite(self, request, id=None):
+    def recipe_favorite(self, request, pk=None):
         """
-        Создает endpoint api/recipes/{id}/favorite/.
+        Создает endpoint api/recipes/{pk}/favorite/.
 
         Управление рецептами из листа избранных.
         """
         recipe = get_object_or_404(
             Recipe,
-            id=id
+            pk=pk
         )
         serializer = serializers.FavoriteRecipSerializer(
             data={
