@@ -21,8 +21,6 @@ ALLOWED_HOSTS = [
     "foodgramajsen.ddns.net"
 ]
 
-DOMAIN = "https://foodgramajsen.ddns.net"
-
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
@@ -121,7 +119,7 @@ STATICFILES_DIRS = [
 
 INGREDIENTS_DIR = os.path.join(BASE_DIR, 'data/ingredients')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://foodgramajsen.ddns.net/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
