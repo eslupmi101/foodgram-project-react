@@ -62,6 +62,7 @@ class UserViewSet(DjoserUserViewSet):
             context={"request": request},
             many=True
         )
+        serializer.is_valid(raise_exception=True)
         return Response(
             data=serializer.data,
             status=status.HTTP_200_OK
