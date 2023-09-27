@@ -10,7 +10,7 @@ from recipes.models import Ingredient
 
 logger = logging.getLogger(__name__)
 
-INGREDIENTS_DIR = getattr(settings, 'INGREDIENTS_DIR', '')
+INGREDIENTS_DIR = getattr(settings, "INGREDIENTS_DIR", "")
 
 
 def read_json_file(file_name: str) -> List[Dict]:
@@ -27,12 +27,21 @@ def read_json_file(file_name: str) -> List[Dict]:
 def load_ingredients(file_name: str) -> None:
     ingredients = read_json_file(file_name)
     ingredient_objs: list[Ingredient] = []
+    seen_names = set()
 
     for ingredient in ingredients:
-        ingredient_objs.append(Ingredient(
-            name=ingredient.get("name"),
-            measurement_unit=ingredient.get("measurement_unit")
-        ))
+        name = ingredient["name"]
+        measurement_unit = ingredient["measurement_unit"]
+
+        if name not in seen_names:
+            seen_names.add(name)
+            ingredient_objs.append(
+                Ingredient(
+                    name=name,
+                    measurement_unit=measurement_unit
+                )
+            )
+
     Ingredient.objects.bulk_create(ingredient_objs)
     logger.info("Ingredients loaded into database.")
 

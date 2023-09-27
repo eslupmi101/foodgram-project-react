@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "localhost:9000",
@@ -86,9 +86,6 @@ DATABASES = {
     }
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -122,7 +119,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-INGREDIENTS_DIR = os.path.join(BASE_DIR, 'static/data')
+INGREDIENTS_DIR = os.path.join(BASE_DIR, 'data/ingredients')
 
 MEDIA_URL = '/media/'
 
@@ -172,5 +169,16 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+    },
+}
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'api.serializers.UserGETSerializer',
+        'current_user': 'api.serializers.UserGETSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ['api.permissions.IsAuthenticatedReadOnlyOrAuthor'],
+        'user_list': ['api.permissions.IsAuthenticatedReadOnlyOrAuthor']
     },
 }

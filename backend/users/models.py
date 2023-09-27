@@ -1,17 +1,18 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import F, Q
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
 
 from .validators import UsernameValidator
 
 
 class User(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = [
+        "username", "first_name", "last_name"
+    ]
 
     first_name = models.CharField(
         max_length=150,
@@ -58,10 +59,10 @@ class Subscribe(models.Model):
         related_name="subscribe_authors",
         on_delete=models.CASCADE
     )
-    subscriber = models.ForeignKey(
+    user = models.ForeignKey(
         "users.User",
         verbose_name="Подписчик",
-        related_name="subscribe_subscribers",
+        related_name="subscribe_users",
         on_delete=models.CASCADE
     )
 
@@ -70,23 +71,23 @@ class Subscribe(models.Model):
         verbose_name_plural = "Подписки"
         constraints = [
             models.UniqueConstraint(
-                fields=["author", "subscriber"],
-                name="unique_subscriber"
+                fields=["author", "user"],
+                name="unique_user"
             ),
             models.CheckConstraint(
-                check=~Q(author=F("subscriber")),
+                check=~Q(author=F("user")),
                 name="cannot_subscribe_yourself"
             )
         ]
 
     def clean(self, *args, **kwargs):
-        if self.author == self.subscriber:
+        if self.author == self.user:
             raise ValidationError("Вы не можете подписаться на себя.")
 
         return super().clean(*args, **kwargs)
 
     def __str__(self) -> str:
         return (
-            f"Подписка {str(self.subscriber)}"
+            f"Подписка {str(self.user)}"
             f" на {str(self.author)}"
         )

@@ -245,3 +245,6 @@ lerna-debug.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Django static files
+collected_static/

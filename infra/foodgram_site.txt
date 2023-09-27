@@ -1,0 +1,8 @@
+IP: 158.160.76.140; 
+
+name_foodgram: https://foodgramajsen.ddns.net/; 
+
+email: admin@mail.com; 
+
+password: admin;  
+

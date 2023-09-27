@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class RecipePermission(permissions.BasePermission):
+class IsAuthenticatedReadOnlyOrAuthor(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(
             request.method in permissions.SAFE_METHODS
@@ -25,7 +25,7 @@ class RecipePermission(permissions.BasePermission):
             return True
 
 
-class UserPermission(permissions.BasePermission):
+class ReadOnlyOrCreateUserOrUpdateProfile(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
 
@@ -50,6 +50,14 @@ class UserPermission(permissions.BasePermission):
             return True
 
         user = request.user
+
+        if (
+            user
+            and user.is_authenticated
+            and user == obj
+            and request.method == "PATCH"
+        ):
+            return True
         if (
             user
             and user.is_authenticated

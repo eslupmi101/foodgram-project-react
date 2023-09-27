@@ -1,69 +1,51 @@
-from django.contrib.auth import get_user_model
 from django.db.models import BooleanField, Case, Value, When
 from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from recipes.utils import get_xls_recipes_file
+from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, mixins
 
-from users.models import Subscribe
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.utils import get_xls_recipes_file
+from users.models import Subscribe, User
 from . import serializers
 from .filters import IngredientFilterSet, RecipeFilterSet
-from .permissions import RecipePermission, UserPermission
+from .permissions import (IsAuthenticatedReadOnlyOrAuthor,
+                          ReadOnlyOrCreateUserOrUpdateProfile)
 
-User = get_user_model()
 
-
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
-    permission_classes = [UserPermission]
+class UserViewSet(DjoserUserViewSet):
+    permission_classes = [ReadOnlyOrCreateUserOrUpdateProfile]
     filterset_fields = ["username"]
     search_fields = ["username"]
-    http_method_names = ["get", "post", "patch", "delete"]
 
-    @action(
-        detail=False,
-        methods=["GET", "PATCH"],
-        url_path="me",
-        url_name="Me",
-        permission_classes=[IsAuthenticated]
-    )
-    def get_me(self, request):
-        """
-        Создает endpoint api/users/me/.
+    def get_queryset(self):
+        queryset = User.objects.all()
+        user = self.request.user
 
-        Редактирования и получение
-        данных собственного профиля
-        """
-        if request.method == "PATCH":
-            serializer = serializers.UserSerializer(
-                request.user,
-                data=request.data,
-                context={"request": request},
-                partial=True
+        if user.is_authenticated:
+            return queryset.annotate(
+                is_subscribed=Case(
+                    When(subscribe_authors__user=user, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # GET method
-        serializer = serializers.UserSerializer(
-            request.user,
-            context={"request": request},
+        return queryset.annotate(
+            is_subscribed=Value(
+                False, output_field=BooleanField()
+            )
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,
         methods=["GET"],
         url_path="subscriptions",
-        url_name="subscriptions",
+        url_name="Subscriptions",
         permission_classes=[IsAuthenticated]
     )
     def get_subscriptions(self, request):
@@ -74,9 +56,9 @@ class UserViewSet(ModelViewSet):
         """
         authors = get_list_or_404(
             User,
-            subscribe_authors__subscriber=request.user,
+            subscribe_authors__user=request.user,
         )
-        serializer = serializers.UserRecipeSerializer(
+        serializer = serializers.UserRecipeGETSerializer(
             authors,
             context={"request": request},
             many=True
@@ -88,12 +70,12 @@ class UserViewSet(ModelViewSet):
 
     @action(
         detail=True,
-        methods=["DELETE", "POST"],
+        methods=["POST"],
         url_path="subscribe",
         url_name="Subscribe",
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, pk=None):
+    def subscribe(self, request, id=None):
         """
         Создает endpoint api/users/{id}/subscribe/.
 
@@ -101,80 +83,36 @@ class UserViewSet(ModelViewSet):
         """
         author = get_object_or_404(
             User,
-            pk=pk
+            id=id
         )
-
-        if author == request.user:
-            return Response(
-                data={"error": "You and author cannot be same user."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        subscribe = Subscribe.objects.filter(
-            author=author,
-            subscriber=request.user
-        )
-
-        if request.method == "POST":
-            if subscribe.exists():
-                return Response(
-                    data={
-                        "error":
-                        "You have already subscribed to this author."
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            Subscribe.objects.create(
-                author=author,
-                subscriber=request.user
-            )
-
-            serializer = serializers.UserRecipeSerializer(
-                author,
-                context={"request": request}
-            )
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-
-        # DELETE method
-        if not subscribe.exists():
-            return Response(
-                data={
-                    "error":
-                    "You are not subscribed to this author."
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        subscribe.delete()
-
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-        )
-
-    @action(
-        detail=False,
-        methods=["POST"],
-        url_path="set_password",
-        url_name="Set password",
-        permission_classes=[IsAuthenticated]
-    )
-    def set_password(self, request):
-        """
-        Создает endpoint api/users/set_password/.
-
-        Смена пароля.
-        """
-        serializer = serializers.ChangePasswordSerializer(
-            data=request.data,
+        serializer = serializers.SubscribeSerializer(
+            data={
+                "author": author,
+                "user": request.user
+            },
             context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.update(request.user, serializer.validated_data)
+        serializer.save()
         return Response(
-            {"message": "Пароль успешно изменен."},
-            status=status.HTTP_200_OK
+            data=serializer.data["author"],
+            status=status.HTTP_201_CREATED
+        )
+
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id=None):
+        author = get_object_or_404(
+            User,
+            id=id
+        )
+        subscribe = get_object_or_404(
+            Subscribe,
+            user=request.user,
+            author=author
+        )
+        subscribe.delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
         )
 
 
@@ -190,7 +128,7 @@ class IngredientViewSet(GenericViewSet,
 
 class RecipeViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    permission_classes = [RecipePermission]
+    permission_classes = [IsAuthenticatedReadOnlyOrAuthor]
     serializer_class = serializers.RecipeSerializer
     filterset_class = RecipeFilterSet
 
@@ -242,14 +180,10 @@ class RecipeViewSet(ModelViewSet):
         Скачивание файла xls с информацией рецептов
         из корзины покупок.
         """
-        recipes = Recipe.objects.filter(
+        recipes = get_list_or_404(
+            Recipe,
             shoppingcart__user=self.request.user
         )
-        if not recipes.exists():
-            return Response(
-                data={"error": "Shopping cart is blank."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         response = HttpResponse(content_type="application/ms-excel")
         response["Content-Disposition"] = (
@@ -263,64 +197,52 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=True,
-        methods=["POST", "DELETE"],
+        methods=["POST"],
         permission_classes=[IsAuthenticated],
         url_path="shopping_cart",
         url_name="Shopping cart"
     )
-    def recipe_shopping_cart(self, request, pk=None):
+    def recipe_shopping_cart(self, request, id=None):
         """
         Создает endpoint api/recipes/{id}/recipe_shopping_cart/.
 
         Управление рецептами из корзины покупок.
         """
-        recipe = get_object_or_404(Recipe, pk=pk)
-        user = request.user
-        recipe_shopping_cart = ShoppingCart.objects.filter(
-            recipe=recipe,
-            user=user
+        recipe = get_object_or_404(Recipe, id=id)
+        serializer = serializers.ShopingCartSerializer(
+            data={
+                "recipe": recipe,
+                "user": request.user
+            },
+            context={"request": request}
+        )
+        serializer.create()
+        return Response(
+            data=serializer.data["recipe"],
+            status=status.HTTP_201_CREATED
         )
 
-        if request.method == "POST":
-            if recipe_shopping_cart.exists():
-                return Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={
-                        "error":
-                        "The recipe is already in your shopping cart."
-                    }
-                )
-            ShoppingCart.objects.create(
-                recipe=recipe,
-                user=user
-            )
-            serializer = serializers.RecipeGETSerializer(recipe)
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-
-        # DELETE method
-        if not recipe_shopping_cart.exists():
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={
-                    "error": "No recipe in shopping cart."
-                }
-            )
-        recipe_shopping_cart.delete()
+    @recipe_shopping_cart.mapping.delete
+    def delete_recipe_shopping_cart(self, request, id=None):
+        recipe = get_object_or_404(Recipe, id=id)
+        shopping_cart = get_object_or_404(
+            ShoppingCart,
+            recipe=recipe,
+            user=request.user
+        )
+        shopping_cart.delete()
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
 
     @action(
         detail=True,
-        methods=["POST", "DELETE"],
+        methods=["POST"],
         permission_classes=[IsAuthenticated],
         url_path="favorite",
         url_name="Favorite"
     )
-    def recipe_favorite(self, request, pk=None):
+    def recipe_favorite(self, request, id=None):
         """
         Создает endpoint api/recipes/{id}/favorite/.
 
@@ -328,45 +250,31 @@ class RecipeViewSet(ModelViewSet):
         """
         recipe = get_object_or_404(
             Recipe,
-            pk=pk
+            id=id
         )
-        user = request.user
+        serializer = serializers.FavoriteRecipSerializer(
+            data={
+                "recipe": recipe,
+                "user": request.user
+            },
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.create()
+        return Response(
+            data=serializer.data["recipe"],
+            status=status.HTTP_201_CREATED
+        )
 
-        favorite_queryset = Favorite.objects.filter(
+    @recipe_favorite.mapping.delete
+    def delete_recipe_favorite(self, request, id=None):
+        recipe = get_object_or_404(Recipe, id=id)
+        favorite = get_object_or_404(
+            Favorite,
             recipe=recipe,
-            user=user
+            user=request.user
         )
-        if request.method == "POST":
-            if (
-                favorite_queryset.exists()
-            ):
-                return Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={
-                        "error": "Recipe is already in favorites."
-                    }
-                )
-            Favorite.objects.create(
-                recipe=recipe,
-                user=user
-            )
-            serializer = serializers.FavoriteRecipeGETSerializer(recipe)
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-
-        # DELETE method
-        if (
-            not favorite_queryset.exists()
-        ):
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={
-                    "error": "No recipe in favorites."
-                }
-            )
-        favorite_queryset.delete()
+        favorite.delete()
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )

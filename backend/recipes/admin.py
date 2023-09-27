@@ -6,14 +6,14 @@ from .models import (Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag,
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ["recipe", "user"]
+    list_display = ["id", "recipe", "user"]
     list_filter = ["recipe", "user"]
     search_fields = ["recipe__name", "user__username"]
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ["name", "measurement_unit"]
+    list_display = ["id", "name", "measurement_unit"]
     list_filter = ["name", "measurement_unit"]
     search_fields = ["name", "measurement_unit"]
 
@@ -21,7 +21,7 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = [
-        "name", "author", "cooking_time",
+        "id", "name", "author", "cooking_time",
         "recipes_ingredients", "favorite_count"
     ]
     list_filter = ["name", "author", "tags"]
@@ -36,21 +36,21 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ["name", "color", "slug"]
+    list_display = ["id", "name", "color", "slug"]
     list_filter = ["name", "color", "slug"]
     search_fields = ["name", "color", "slug"]
 
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ["recipe", "ingredient"]
+    list_display = ["id", "recipe", "ingredient"]
     list_filter = ["recipe__name", "ingredient__name"]
     search_fields = ["recipe__name", "ingredient__name"]
 
 
 @admin.register(RecipeTag)
 class RecipeTagAdmin(admin.ModelAdmin):
-    list_display = ["recipe", "tag"]
+    list_display = ["id", "recipe", "tag"]
     list_filter = ["recipe__name", "tag__name"]
     search_fields = ["recipe__name", "tag__name"]
 
