@@ -58,11 +58,10 @@ class UserViewSet(DjoserUserViewSet):
             subscribe_authors__user=request.user,
         )
         serializer = serializers.UserRecipeGETSerializer(
-            data=queryset,
+            queryset,
             context={"request": request},
             many=True
         )
-        serializer.is_valid(raise_exception=True)
         return Response(
             data=serializer.data,
             status=status.HTTP_200_OK
