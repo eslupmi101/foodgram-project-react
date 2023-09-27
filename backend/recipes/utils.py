@@ -34,7 +34,7 @@ def get_xls_recipes_file(recipes: list[Recipe]) -> xlwt.Workbook:
                 str(number_ingredient),
                 recipe_ingredient.indredient.name,
                 recipe_ingredient.indredient.measurement_unit,
-                recipe_ingredient.amount,
+                str(recipe_ingredient.amount),
                 recipe.name,
                 recipe.author.username,
                 recipe.text,
