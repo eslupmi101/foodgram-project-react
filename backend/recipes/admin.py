@@ -18,6 +18,16 @@ class IngredientAdmin(admin.ModelAdmin):
     search_fields = ["name", "measurement_unit"]
 
 
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
+class RecipeTagInline(admin.TabularInline):
+    model = Recipe.tags.through
+    extra = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = [
@@ -27,6 +37,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ["name", "author", "tags"]
     search_fields = ["name", "author__username", "cooking_time"]
     filter_horizontal = ["tags"]
+    inlines = [RecipeIngredientInline, RecipeTagInline]
 
     def favorite_count(self, obj):
         return obj.favorites.count()

@@ -33,7 +33,7 @@ class UserGETSerializer(serializers.ModelSerializer):
         return bool(
             Subscribe.objects.filter(
                 author=obj,
-                subscriber=user
+                user=user
             ).exists()
         )
 

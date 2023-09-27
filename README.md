@@ -42,7 +42,7 @@ mv .env.dist .env
 
 Запуск Docker контейнеров через compose
 ```
-docker compose -f docker-compose.yml up
+docker compose -f docker-compose.production.yml up
 ```
 
 Собираем статики для админки
