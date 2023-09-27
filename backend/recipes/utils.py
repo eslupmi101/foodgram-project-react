@@ -20,8 +20,8 @@ def add_recipe_row(ws, row_num, recipe):
 def add_ingredient_row(ws, row_num, recipe_ingredient, number_ingredient):
     row = [
         str(number_ingredient),
-        recipe_ingredient.indredient.name,
-        recipe_ingredient.indredient.measurement_unit,
+        recipe_ingredient.ingredient.name,
+        recipe_ingredient.ingredient.measurement_unit,
         str(recipe_ingredient.amount),
     ]
 
