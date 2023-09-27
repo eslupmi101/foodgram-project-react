@@ -248,3 +248,6 @@ Thumbs.db
 
 # Django static files
 collected_static/
+
+# Django media
+./media/

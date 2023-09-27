@@ -133,3 +133,6 @@ dmypy.json
 
 # Django static files
 collected_static/
+
+# Django media
+./backend/media/
