@@ -11,35 +11,19 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, mixins
 
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.utils import get_xls_recipes_file
-from users.models import Subscribe, User
+from users.models import Subscribe
 from . import serializers
 from .filters import IngredientFilterSet, RecipeFilterSet
+from .paginations import CustomPagination
 from .permissions import (IsAuthenticatedReadOnlyOrAuthor,
                           ReadOnlyOrCreateUserOrUpdateProfile)
 
 
 class UserViewSet(DjoserUserViewSet):
     permission_classes = [ReadOnlyOrCreateUserOrUpdateProfile]
+    pagination_class = CustomPagination
     filterset_fields = ["username"]
     search_fields = ["username"]
-
-    def get_queryset(self):
-        queryset = User.objects.all()
-        user = self.request.user
-
-        if user.is_authenticated:
-            return queryset.annotate(
-                is_subscribed=Case(
-                    When(subscribe_authors__user=user, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField()
-                )
-            )
-        return queryset.annotate(
-            is_subscribed=Value(
-                False, output_field=BooleanField()
-            )
-        )
 
     @action(
         detail=False,
@@ -60,15 +44,19 @@ class UserViewSet(DjoserUserViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = serializers.UserRecipeGETSerializer(
+            serializer = self.get_serializer(
                 page,
                 many=True,
                 context={"request": request}
             )
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
+            queryset,
+            many=True,
+            context={"request": request}
+        )
+        return Response(serializer.data)
 
     @action(
         detail=True,
@@ -124,32 +112,10 @@ class IngredientViewSet(GenericViewSet,
 
 class RecipeViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = RecipeFilterSet
     permission_classes = [IsAuthenticatedReadOnlyOrAuthor]
     serializer_class = serializers.RecipeSerializer
-    filterset_class = RecipeFilterSet
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Recipe.objects.all()
-
-        if user.is_authenticated:
-            queryset = queryset.annotate(
-                is_favorited=Case(
-                    When(favorite__user=user, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField()
-                )
-            )
-
-            queryset = queryset.annotate(
-                is_in_shopping_cart=Case(
-                    When(shoppingcart__user=user, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField()
-                )
-            )
-
-        return queryset
+    queryset = Recipe.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(

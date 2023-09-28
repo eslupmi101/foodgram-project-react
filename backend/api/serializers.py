@@ -19,19 +19,10 @@ class UserGETSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_is_subscribed(self, obj):
-        if hasattr(obj, "is_subscribed"):
-            return obj.is_subscribed
-
         user = self.context.get("request").user
-
-        if not user.is_authenticated:
-            return False
-
-        if user == obj:
-            return False
-
         return bool(
-            Subscribe.objects.filter(
+            user.is_authenticated
+            and Subscribe.objects.filter(
                 author=obj,
                 user=user
             ).exists()
