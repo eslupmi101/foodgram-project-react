@@ -132,7 +132,7 @@ class RecipeViewSet(ModelViewSet):
                     default=False,
                     output_field=BooleanField()
                 )
-            )
+            ).distinct()
 
         return queryset
 
