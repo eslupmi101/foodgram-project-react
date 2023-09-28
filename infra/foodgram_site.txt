@@ -4,8 +4,8 @@ name_foodgram: https://foodgramajsen.ddns.net/;
 
 email: admin@mail.com; 
 
-password: admin;  
+password: admin;
 
-email: ivansemenov@mail.com
+email: denisfrunza@mail.com;
 
-password: megafon12
+password: primudiplomnaeze555;
