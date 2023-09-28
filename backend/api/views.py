@@ -44,14 +44,14 @@ class UserViewSet(DjoserUserViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(
+            serializer = serializers.UserRecipeGETSerializer(
                 page,
                 many=True,
                 context={"request": request}
             )
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(
+        serializer = serializers.UserRecipeGETSerializer(
             queryset,
             many=True,
             context={"request": request}
