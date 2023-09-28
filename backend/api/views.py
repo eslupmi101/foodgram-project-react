@@ -1,4 +1,4 @@
-from django.db.models import BooleanField, Case, Value, When, OuterRef
+from django.db.models import BooleanField, Case, Exists
 from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -121,25 +121,18 @@ class RecipeViewSet(ModelViewSet):
         queryset = Recipe.objects.all()
 
         if user.is_authenticated:
-            favorite_exists = Favorite.objects.filter(
-                recipe=OuterRef('pk'), user=user
-            ).exists()
-            shoppingcart_exists = ShoppingCart.objects.filter(
-                recipe=OuterRef('pk'), user=user
-            ).exists()
-
             queryset = queryset.annotate(
                 is_favorited=Case(
-                    When(favorite_exists, then=Value(True)),
-                    default=Value(False),
+                    Exists(favorite__user=user, then=True),
+                    default=False,
                     output_field=BooleanField()
                 ),
                 is_in_shopping_cart=Case(
-                    When(shoppingcart_exists, then=Value(True)),
-                    default=Value(False),
+                    Exists(shoppingcart__user=user, then=True),
+                    default=False,
                     output_field=BooleanField()
                 )
-            )
+            ).distinct()
 
         return queryset
 
