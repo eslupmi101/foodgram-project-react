@@ -1,6 +1,4 @@
-import logging
-
-from django.db.models import BooleanField, Case, Value, When
+from django.db.models import F, Value
 from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -124,19 +122,9 @@ class RecipeViewSet(ModelViewSet):
 
         if user.is_authenticated:
             queryset = queryset.annotate(
-                is_favorited=Case(
-                    When(favorite__user=user, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField()
-                ),
-                is_in_shopping_cart=Case(
-                    When(shoppingcart__user=user, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField()
-                )
+                is_favorited=Value(F('favorite__user') == user),
+                is_in_shopping_cart=Value(F('shoppingcart__user') == user)
             )
-
-        logging.debug(queryset)
 
         return queryset
 
