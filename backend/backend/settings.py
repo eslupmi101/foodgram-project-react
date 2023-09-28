@@ -15,6 +15,7 @@ ALLOWED_HOSTS = [
     "localhost:9000",
     "localhost:8000",
     "127.0.0.1",
+    "127.0.0.1:9002",
     "backend:8000",
     "0.0.0.0:8000",
     "localhost",
