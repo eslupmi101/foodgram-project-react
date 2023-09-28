@@ -6,3 +6,6 @@ email: admin@mail.com;
 
 password: admin;  
 
+email: ivansemenov@mail.com
+
+password: megafon12
