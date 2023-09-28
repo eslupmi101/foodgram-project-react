@@ -121,7 +121,7 @@ class RecipeViewSet(ModelViewSet):
         queryset = Recipe.objects.all()
 
         if user.is_authenticated:
-            queryset.annotate(
+            queryset = queryset.annotate(
                 is_favorited=Case(
                     When(favorite__user=user, then=Value(True)),
                     default=Value(False),
@@ -134,7 +134,7 @@ class RecipeViewSet(ModelViewSet):
                 )
             )
 
-        queryset.annotate(
+        queryset = queryset.annotate(
             is_favorited=Value(
                 False, output_field=BooleanField()
             ),
