@@ -126,7 +126,9 @@ class RecipeViewSet(ModelViewSet):
                     When(favorite__user=user, then=Value(True)),
                     default=Value(False),
                     output_field=BooleanField()
-                ),
+                )
+            )
+            queryset = queryset.annotate(
                 is_in_shopping_cart=Case(
                     When(shoppingcart__user=user, then=Value(True)),
                     default=Value(False),
