@@ -1,3 +1,4 @@
+from django.db.models import BooleanField, Case, Value, When 
 from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -115,6 +116,28 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedReadOnlyOrAuthor]
     serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Recipe.objects.all()
+
+        if user.is_authenticated:
+            queryset = queryset.annotate(
+                is_favorited=Case(
+                    When(favorite__user=user, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
+            )
+            queryset = queryset.annotate(
+                is_in_shopping_cart=Case(
+                    When(shoppingcart__user=user, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
+            )
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(
