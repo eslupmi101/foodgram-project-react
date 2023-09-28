@@ -123,15 +123,13 @@ class RecipeViewSet(ModelViewSet):
         if user.is_authenticated:
             queryset = queryset.annotate(
                 is_favorited=Case(
-                    When(favorite__user=user, then=Value(True)),
-                    default=Value(False),
+                    When(favorite__user=user, then=True),
+                    default=False,
                     output_field=BooleanField()
-                )
-            )
-            queryset = queryset.annotate(
+                ),
                 is_in_shopping_cart=Case(
-                    When(shoppingcart__user=user, then=Value(True)),
-                    default=Value(False),
+                    When(shoppingcart__user=user, then=True),
+                    default=False,
                     output_field=BooleanField()
                 )
             )
