@@ -123,7 +123,7 @@ class RecipeViewSet(ModelViewSet):
 
         if user.is_authenticated:
             queryset.annotate(
-                is_favorited=Case( 
+                is_favorited=Case(
                     When(favorite__user=user, then=Value(True)),
                     default=Value(False),
                     output_field=BooleanField()
@@ -143,8 +143,8 @@ class RecipeViewSet(ModelViewSet):
                 False, output_field=BooleanField()
             )
         )
-    
-        return queryset 
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(
