@@ -122,14 +122,12 @@ class RecipeViewSet(ModelViewSet):
         queryset = Recipe.objects.all()
 
         if user.is_authenticated:
-            queryset = queryset.annotate(
-                is_favorited=Case(
+            queryset.annotate(
+                is_favorited=Case( 
                     When(favorite__user=user, then=Value(True)),
                     default=Value(False),
                     output_field=BooleanField()
-                )
-            )
-            queryset = queryset.annotate(
+                ),
                 is_in_shopping_cart=Case(
                     When(shoppingcart__user=user, then=Value(True)),
                     default=Value(False),
@@ -137,7 +135,16 @@ class RecipeViewSet(ModelViewSet):
                 )
             )
 
-        return queryset
+        queryset.annotate(
+            is_favorited=Value(
+                False, output_field=BooleanField()
+            ),
+            is_in_shopping_cart=Value(
+                False, output_field=BooleanField()
+            )
+        )
+    
+        return queryset 
 
     def perform_create(self, serializer):
         serializer.save(
