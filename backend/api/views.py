@@ -1,4 +1,4 @@
-from django.db.models import BooleanField, Case, Exists
+from django.db.models import BooleanField, Case, When
 from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -123,16 +123,16 @@ class RecipeViewSet(ModelViewSet):
         if user.is_authenticated:
             queryset = queryset.annotate(
                 is_favorited=Case(
-                    Exists(favorite__user=user, then=True),
+                    When(favorite__user=user, then=True),
                     default=False,
                     output_field=BooleanField()
                 ),
                 is_in_shopping_cart=Case(
-                    Exists(shoppingcart__user=user, then=True),
+                    When(shoppingcart__user=user, then=True),
                     default=False,
                     output_field=BooleanField()
                 )
-            ).distinct()
+            )
 
         return queryset
 
