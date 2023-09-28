@@ -118,6 +118,7 @@ class RecipeViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Recipe.objects.all()
 
         if user.is_authenticated:
             favorite_exists = Favorite.objects.filter(
