@@ -124,7 +124,11 @@ class RecipeViewSet(ModelViewSet):
             queryset = queryset.annotate(
                 is_favorited=Case(
                     When(
-                        Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=user)),
+                        Exists(
+                            Favorite.objects.filter(
+                                recipe=OuterRef('pk'), user=user
+                            )
+                        ),
                         then=Value(True)
                     ),
                     default=Value(False),
@@ -132,7 +136,11 @@ class RecipeViewSet(ModelViewSet):
                 ),
                 is_in_shopping_cart=Case(
                     When(
-                        Exists(ShoppingCart.objects.filter(recipe=OuterRef('pk'), user=user)),
+                        Exists(
+                            ShoppingCart.objects.filter(
+                                recipe=OuterRef('pk'), user=user
+                            )
+                        ),
                         then=Value(True)
                     ),
                     default=Value(False),
